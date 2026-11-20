@@ -57,8 +57,8 @@ function parsePartTransposition(
   const a = m1 ? findChild(m1, "attributes") : null;
   const partTranspose = readTransposeInterval(a ? findChild(a, "transpose") : null);
   const forPart = concertScore && a ? findChild(a, "for-part") : null;
-  const writtenTranspose =
-    readTransposeInterval(forPart ? findChild(forPart, "part-transpose") : null) ?? partTranspose;
+  const forPartTranspose = readTransposeInterval(forPart ? findChild(forPart, "part-transpose") : null);
+  const writtenTranspose = forPartTranspose ?? partTranspose;
   if (!writtenTranspose) return {};
   const { halfSteps, staffDistance, octaveChange } = writtenTranspose;
   if (halfSteps === 0 && staffDistance === 0 && octaveChange === 0) return { partTranspose };
@@ -68,6 +68,10 @@ function parsePartTransposition(
   // ledger lines. Flag them so the engine keeps them written regardless of the
   // score's `useWritten` mode.
   const isPureOctave = halfSteps === 0 && staffDistance === 0 && octaveChange !== 0;
+  // A concert clef that carries the same octave (guitar treble-8vb, double bass
+  // bass-8vb) already shows the notes where the written part would; applying the
+  // part transposition as well would displace them by a second octave.
+  if (isPureOctave && forPartTranspose && clefOctaveChanges(a).includes(octaveChange)) return { partTranspose };
   const transposition: MnxPart["transposition"] = {
     interval: {
       halfSteps: -(halfSteps + 12 * octaveChange),
@@ -79,6 +83,11 @@ function parsePartTransposition(
     partTranspose,
     transposition,
   };
+}
+
+function clefOctaveChanges(attributes: Element | null): number[] {
+  if (!attributes) return [];
+  return findChildren(attributes, "clef").map((clef) => parseInt(childText(clef, "clef-octave-change") ?? "0", 10));
 }
 
 // Highest `<staff>` number referenced by any note across the whole part.

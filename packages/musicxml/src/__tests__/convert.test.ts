@@ -1887,6 +1887,37 @@ describe("convertMusicXmlToMnx — transposition", () => {
     },
   );
 
+  // MuseScore's concert-score export expresses a guitar's or double bass's octave
+  // twice: once in the concert clef (treble-8vb, bass-8vb) and again in
+  // <for-part><part-transpose>. The clef already places the notes where the
+  // written part shows them, so the part transposition must not be applied on top.
+  it.each([
+    ["Guitar", "G", 2, "E", 3],
+    ["Contrabass", "F", 4, "D", 3],
+  ])(
+    "imports concert-score %s whose octave clef already carries the part's octave",
+    (name, sign, line, step, octave) => {
+      const xml = `<score-partwise version="4.0">
+      <defaults><concert-score/></defaults>
+      <part-list><score-part id="P1"><part-name>${name}</part-name></score-part></part-list>
+      <part id="P1"><measure number="1"><attributes>
+        <divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time>
+        <clef><sign>${sign}</sign><line>${line}</line><clef-octave-change>-1</clef-octave-change></clef>
+        <for-part><part-transpose><diatonic>0</diatonic><chromatic>0</chromatic>
+          <octave-change>-1</octave-change></part-transpose></for-part>
+      </attributes>
+      <note><pitch><step>${step}</step><octave>${octave}</octave></pitch><duration>4</duration><type>whole</type></note>
+      </measure></part>
+    </score-partwise>`;
+      const result = convertMusicXmlToMnx(xml);
+      expect(result.parts[0]!.transposition).toBeUndefined();
+      expect(result.parts[0]!.measures[0]!.clefs![0]!.clef).toMatchObject({ sign, octave: -1 });
+      expect(result.parts[0]!.measures[0]!.sequences![0]!.content[0]).toMatchObject({
+        notes: [{ pitch: { step, octave } }],
+      });
+    },
+  );
+
   it("keeps source octave transposition separate from concert-score part transposition", () => {
     const xml = `<score-partwise version="4.0">
       <defaults><concert-score/></defaults>
