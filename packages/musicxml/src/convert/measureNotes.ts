@@ -725,7 +725,8 @@ export function processMeasureNotes(
         currentPos = currentPos.add(adv);
       }
     } else if (el.tagName === "harmony") {
-      if (vendorExt) {
+      // Viritura chord symbols have no hidden state, so an unprinted harmony is not imported.
+      if (vendorExt && el.getAttribute("print-object") !== "no") {
         const harmony = extractHarmony(el, currentPos, divisions, harmonyTranspositions);
         chordSymbols.push(harmony);
         const resolution = resolveChordSymbol(harmony.chord);

@@ -325,6 +325,23 @@ describe("MusicXML global harmony merging", () => {
     expectGlobalOnly(document, [0, 1]);
   });
 
+  // Arrangers add hidden chord symbols (print-object="no") for playback, for
+  // example repeating the chord on every rhythm slash so MuseScore strikes it
+  // there. Viritura chord symbols have no hidden state, so a harmony that isn't
+  // printed is not imported, whatever chord it names.
+  it("skips harmonies marked print-object=no", () => {
+    const quarter =
+      "<note><pitch><step>B</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>";
+    const hidden = (step: string) => harmony(step).replace("<harmony>", '<harmony print-object="no">');
+    const { document, diagnostics } = importHarmony([
+      { measures: [harmony("D") + quarter + hidden("D") + quarter + hidden("G") + quarter + quarter] },
+    ]);
+    expect(document.global.measures[0]!._x?.viritura.chordSymbols).toEqual([
+      expect.objectContaining({ root: { step: "D" }, position: { fraction: [0, 1] } }),
+    ]);
+    expect(diagnostics).toEqual([]);
+  });
+
   it("deduplicates repeated equivalent harmonies within one staff", () => {
     const { document, diagnostics } = importHarmony([{ measures: [harmony("C") + harmony("C")] }]);
     expect(document.global.measures[0]!._x?.viritura.chordSymbols).toHaveLength(1);
