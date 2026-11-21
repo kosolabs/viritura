@@ -1462,6 +1462,35 @@ fn test_automatic_harmony_shows_each_eligible_instrument_across_layouts() {
     assert_harmony_copies(&layout_score(&score, 1, &LayoutConfig::default()), 0);
 }
 
+// MNX-layout scores (full scores and custom reader layouts) project chord symbols
+// separately from part layouts; hidden symbols must be skipped there too, without
+// a drawn copy or a hit region, while the visible symbol keeps its source index.
+#[test]
+fn test_hidden_global_chord_symbols_are_skipped_in_mnx_layouts() {
+    let mut value = harmony_layout_fixture(serde_json::json!([
+        {"type": "staff", "sources": [{"part": "flute-source"}]},
+        {"type": "staff", "sources": [{"part": "keyboard-source", "staff": 1}]},
+        {"type": "staff", "sources": [{"part": "keyboard-source", "staff": 2}]},
+        {"type": "staff", "sources": [{"part": "clarinet-source"}]}
+    ]));
+    value["global"]["measures"][0]["_x"]["viritura"]["chordSymbols"][0]["hide"] =
+        serde_json::json!(true);
+    for index in [0, 1, 2] {
+        value["parts"][index]["_x"] =
+            serde_json::json!({"viritura": {"chordSymbolVisibility": "show"}});
+    }
+    let score = parse_mnx(&value.to_string()).unwrap();
+    let dl = layout_with_mnx_scores(&score, &LayoutConfig::default(), 0);
+    assert!(harmony_text_runs(&dl, "m0/chord0").is_empty());
+    assert!(!dl
+        .element_bboxes
+        .iter()
+        .any(|bbox| bbox.element_id == "m0/chord0"));
+    let visible = harmony_text_runs(&dl, "m0/chord1");
+    assert_eq!(visible.len(), 3);
+    assert!(visible.iter().all(|(text, _)| *text == "F"));
+}
+
 #[test]
 fn test_show_copies_harmony_on_each_source_parts_first_rendered_staff() {
     let mut value = harmony_layout_fixture(serde_json::json!([

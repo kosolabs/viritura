@@ -482,6 +482,10 @@ impl ::std::convert::TryFrom<::std::string::String> for ChordRootStep {
 ///        13
 ///      ]
 ///    },
+///    "hide": {
+///      "description": "Whether the chord symbol is hidden: kept in the score (for example to drive playback) but not engraved. Corresponds to MusicXML print-object=\"no\". Defaults to false.",
+///      "type": "boolean"
+///    },
 ///    "kindText": {
 ///      "description": "Authored quality spelling retained alongside the normalized quality.",
 ///      "type": "string"
@@ -520,6 +524,9 @@ pub struct ChordSymbol {
     ///Chord extension (6th, 7th, 9th, 11th, 13th).
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub extension: ::std::option::Option<ChordSymbolExtension>,
+    ///Whether the chord symbol is hidden: kept in the score (for example to drive playback) but not engraved. Corresponds to MusicXML print-object="no". Defaults to false.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub hide: ::std::option::Option<bool>,
     ///Authored quality spelling retained alongside the normalized quality.
     #[serde(
         rename = "kindText",

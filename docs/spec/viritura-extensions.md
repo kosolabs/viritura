@@ -1443,6 +1443,14 @@ it, without changing stored harmony.
 | `bass`         | [ChordRoot](#chord-root)               | No       | Concert slash bass note                                        |
 | `extension`    | `6` \| `7` \| `9` \| `11` \| `13`      | No       | Chord extension                                                |
 | `textOverride` | string                                 | No       | Display override, not a replacement for the underlying harmony |
+| `hide`         | boolean                                | No       | Kept in the score but not engraved; defaults to false          |
+
+`hide` marks authored harmony that is not printed, such as MusicXML
+`<harmony print-object="no">`. Arrangers use it for playback, for example
+repeating a chord on every rhythm slash so another application strikes it
+there. A hidden symbol is retained (so it round-trips) but takes no space and
+draws nothing. When imported harmony from several parts meets at one onset, a
+printed symbol wins over a hidden one before the topmost-part rule applies.
 
 The schema requires `position`; the parsers additionally enforce the
 `root`-or-`rawText` constraint. Rootless text does not acquire an invented root.

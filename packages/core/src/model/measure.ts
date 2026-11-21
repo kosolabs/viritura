@@ -414,6 +414,8 @@ export interface ChordSymbol {
   extension?: 6 | 7 | 9 | 11 | 13;
   /** Visual override only; the semantic resolver rejects contradictory or unsupported non-equivalent text. */
   textOverride?: string;
+  /** Kept in the score (for example to drive playback) but not engraved. MusicXML print-object="no". */
+  hide?: boolean;
 }
 
 // ═══════════════════════════════════════════

@@ -74,6 +74,7 @@ pub(super) fn visible_global_chord_symbols(
         chords
             .iter()
             .enumerate()
+            .filter(|(_, chord)| !chord.is_hidden())
             .map(|(index, chord)| {
                 let mut chord = super::super::render_annotations::chord_symbol_for_display(
                     chord,

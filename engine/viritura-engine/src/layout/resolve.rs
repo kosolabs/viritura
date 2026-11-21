@@ -339,6 +339,7 @@ pub(crate) fn resolve_measures(score: &Score, part_index: usize) -> Vec<Resolved
                 global_chords
                     .iter()
                     .enumerate()
+                    .filter(|(_, chord)| !chord.is_hidden())
                     .map(|(index, chord)| {
                         // Written-pitch preference alone (octave instruments) must
                         // not change the concert harmony lane.

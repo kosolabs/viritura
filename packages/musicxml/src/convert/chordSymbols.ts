@@ -185,7 +185,9 @@ export function extractHarmony(
   if (position.isNegative()) throw new Error("Invalid MusicXML harmony position before measure");
   const staff = readStaff(harmony);
   const interval = transpositions.get(staff) ?? transpositions.get(0);
-  return { staff, chord: extractChordSymbol(harmony, { fraction: position.toMnxFraction() }, interval) };
+  const chord = extractChordSymbol(harmony, { fraction: position.toMnxFraction() }, interval);
+  if (harmony.getAttribute("print-object") === "no") chord.hide = true;
+  return { staff, chord };
 }
 
 /** MusicXML transpose is written-to-sounding, unlike MNX's inverse interval. */

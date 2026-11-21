@@ -469,6 +469,42 @@ describe("mergeGlobalChordSymbols", () => {
     expect(sources).toEqual(before);
   });
 
+  // Hidden symbols exist for playback or round-tripping; when another source prints
+  // a symbol at the same onset, the printed one must survive whichever is topmost.
+  it("keeps a printed symbol over a hidden one at the same onset, even from a lower source", () => {
+    const hidden: ChordSymbol = { ...chord("D"), hide: true };
+    const printed = chord("D");
+    const sources = freeze([
+      { partIndex: 0, chordSymbols: [hidden] },
+      { partIndex: 1, chordSymbols: [printed] },
+    ]);
+    expect(mergeGlobalChordSymbols(freeze({}), sources)).toEqual({
+      measure: { chordSymbols: [printed] },
+      warnings: [],
+    });
+  });
+
+  it("reports when a printed symbol replaces a different hidden harmony", () => {
+    const hidden: ChordSymbol = { ...chord("D"), hide: true };
+    const printed = chord("G");
+    const sources = freeze([
+      { partIndex: 0, chordSymbols: [hidden] },
+      { partIndex: 1, chordSymbols: [printed] },
+    ]);
+    expect(mergeGlobalChordSymbols(freeze({}), sources)).toEqual({
+      measure: { chordSymbols: [printed] },
+      warnings: [
+        {
+          position: printed.position,
+          keptPartIndex: 1,
+          discardedPartIndex: 0,
+          keptPrintedOverHidden: true,
+          message: "Conflicting chord symbols: kept the printed symbol over a hidden one.",
+        },
+      ],
+    });
+  });
+
   it("keeps the first same-source symbol across both a symbol list and repeated source entries", () => {
     const first = chord("C", position(1, 4));
     const duplicate = chord("C", position(2, 8));

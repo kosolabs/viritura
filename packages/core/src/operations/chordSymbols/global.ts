@@ -48,6 +48,8 @@ export interface ChordSymbolConflict {
   position: RhythmicPosition;
   keptPartIndex: number;
   discardedPartIndex: number;
+  /** The kept symbol is printed and the discarded one hidden, rather than the topmost source winning. */
+  keptPrintedOverHidden?: true;
   message: string;
 }
 
@@ -74,9 +76,10 @@ function sameHarmony(a: ChordSymbol, b: ChordSymbol): boolean {
 
 /**
  * Merge only incoming selections into a global measure. At conflicting incoming
- * onsets the topmost source wins (first symbol wins ties within one source).
- * Existing harmony is replaced only at incoming onsets, never consulted as a
- * competing source. Equivalent incoming harmony coalesces without a warning.
+ * onsets a printed symbol wins over a hidden one, then the topmost source wins
+ * (first symbol wins ties within one source). Existing harmony is replaced only
+ * at incoming onsets, never consulted as a competing source. Equivalent incoming
+ * harmony coalesces without a warning.
  */
 export function mergeGlobalChordSymbols(
   measure: GlobalMeasure,
@@ -90,14 +93,32 @@ export function mergeGlobalChordSymbols(
       const previous = accepted.find(
         (entry) => compareChordSymbolPositions(entry.chord.position, chord.position) === 0,
       );
-      if (!previous) accepted.push({ chord, partIndex: source.partIndex });
-      else if (!sameHarmony(previous.chord, chord))
-        warnings.push({
-          position: chord.position,
-          keptPartIndex: previous.partIndex,
-          discardedPartIndex: source.partIndex,
-          message: "Conflicting chord symbols: kept the topmost source part.",
-        });
+      if (!previous) {
+        accepted.push({ chord, partIndex: source.partIndex });
+        continue;
+      }
+      const printedReplacesHidden = previous.chord.hide === true && chord.hide !== true;
+      if (!sameHarmony(previous.chord, chord))
+        warnings.push(
+          printedReplacesHidden
+            ? {
+                position: chord.position,
+                keptPartIndex: source.partIndex,
+                discardedPartIndex: previous.partIndex,
+                keptPrintedOverHidden: true,
+                message: "Conflicting chord symbols: kept the printed symbol over a hidden one.",
+              }
+            : {
+                position: chord.position,
+                keptPartIndex: previous.partIndex,
+                discardedPartIndex: source.partIndex,
+                message: "Conflicting chord symbols: kept the topmost source part.",
+              },
+        );
+      if (printedReplacesHidden) {
+        previous.chord = chord;
+        previous.partIndex = source.partIndex;
+      }
     }
   }
   return {
