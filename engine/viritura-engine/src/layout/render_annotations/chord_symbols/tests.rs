@@ -226,6 +226,44 @@ fn rendered_chord_commands(fields: serde_json::Value) -> Vec<RenderCommand> {
         .collect()
 }
 
+// Hidden chord symbols (MusicXML print-object="no") stay in the score, for example
+// to drive playback or to round-trip back to the source application, but are not
+// engraved. rendered_chord_commands also asserts both parsers keep `hide`.
+#[test]
+fn hidden_chord_symbols_are_kept_but_not_drawn() {
+    assert!(rendered_chord_commands(json!({"root": {"step": "D"}, "hide": true})).is_empty());
+    assert!(!rendered_chord_commands(json!({"root": {"step": "D"}})).is_empty());
+}
+
+// Drawn chord symbols keep their index in the score's list, so the editor maps
+// a drawn symbol back to the right chord even when a hidden one precedes it.
+#[test]
+fn visible_chord_after_hidden_chord_keeps_its_source_index() {
+    let value = json!({
+        "mnx": {"version": 1},
+        "global": {"measures": [{
+            "time": {"count": 4, "unit": 4},
+            "_x": {"viritura": {"chordSymbols": [
+                {"position": {"fraction": [0, 1]}, "root": {"step": "D"}, "hide": true},
+                {"position": {"fraction": [1, 2]}, "root": {"step": "G"}}
+            ]}}
+        }]},
+        "parts": [{"_x": {"viritura": {"chordSymbolVisibility": "show"}}, "measures": [{
+            "sequences": [{"content": [{"duration": {"base": "whole"}, "rest": {}}]}]
+        }]}]
+    });
+    let score = crate::parse::parse_mnx_strict_value(&value).unwrap();
+    let dl = crate::layout::layout_score(&score, 0, &LayoutConfig::default());
+    let ids: Vec<&str> = dl
+        .element_ids
+        .iter()
+        .flatten()
+        .map(String::as_str)
+        .collect();
+    assert!(!ids.contains(&"m0/chord0"));
+    assert!(ids.contains(&"m0/chord1"));
+}
+
 #[test]
 fn supported_chords_with_authored_spelling_draw_quality_glyphs_and_superscripts() {
     for (quality, raw, kind, glyph) in [

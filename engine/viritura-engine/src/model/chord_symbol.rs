@@ -125,9 +125,18 @@ pub struct ChordSymbol {
     /// Text override — if set, render this exact string instead of computing from fields
     #[serde(skip_serializing_if = "Option::is_none", rename = "textOverride")]
     pub text_override: Option<String>,
+    /// Kept in the score (for example to drive playback) but not engraved and
+    /// given no space. MusicXML `print-object="no"`. Defaults to false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hide: Option<bool>,
 }
 
 impl ChordSymbol {
+    /// Whether this chord symbol is kept in the score but not engraved.
+    pub fn is_hidden(&self) -> bool {
+        self.hide == Some(true)
+    }
+
     /// Build the quality/extension text that follows the root accidental.
     pub fn suffix_text(&self) -> String {
         let mut suffix = String::new();
@@ -250,6 +259,7 @@ mod tests {
             bass,
             extension: ext,
             text_override: None,
+            hide: None,
         }
     }
 

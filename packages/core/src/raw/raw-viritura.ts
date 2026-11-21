@@ -209,6 +209,8 @@ export interface components {
             extension?: 6 | 7 | 9 | 11 | 13;
             /** @description Visual override of the computed display text, not a semantic replacement. The semantic resolver rejects parseable contradictions or unsupported non-equivalent overrides. */
             textOverride?: string;
+            /** @description Whether the chord symbol is hidden: kept in the score (for example to drive playback) but not engraved. Corresponds to MusicXML print-object="no". Defaults to false. */
+            hide?: boolean;
         };
         /** @description Score-wide chord-symbol engraving choices. */
         "chord-symbol-style": {

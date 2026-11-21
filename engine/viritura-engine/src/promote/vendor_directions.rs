@@ -312,6 +312,7 @@ fn promote_chord_symbol(r: raw_viritura::ChordSymbol) -> ModelChordSymbol {
         bass: r.bass.map(promote_chord_root),
         extension: r.extension.and_then(|e| u32::try_from(*e).ok()),
         text_override: r.text_override,
+        hide: r.hide,
     }
 }
 
