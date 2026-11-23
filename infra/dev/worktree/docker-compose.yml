@@ -16,7 +16,7 @@ x-api-build: &api-build
       com.viritura.dev.cache: api-image
 
 x-wasm-image: &wasm-image
-  image: viritura-wasm-dev:rust-1.93.1-wasm-pack-0.14.0
+  image: viritura-wasm-dev:rust-1.93.1-trixie-wasm-pack-0.14.0
 
 x-public-environment: &public-environment
   VIRITURA_PUBLIC_EDITOR_URL: http://editor.${VIRITURA_SLUG}.viritura.localhost
