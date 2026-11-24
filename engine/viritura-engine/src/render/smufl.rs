@@ -94,10 +94,10 @@ pub mod smufl {
     pub const NOTEHEAD_TRIANGLE_DOWN_WHOLE: u32 = 0xE0C4;
     pub const NOTEHEAD_TRIANGLE_DOWN_HALF: u32 = 0xE0C5;
     pub const NOTEHEAD_TRIANGLE_DOWN_BLACK: u32 = 0xE0C7;
-    pub const NOTEHEAD_SLASH_VERTICAL_DOUBLE_WHOLE: u32 = 0xE100;
-    pub const NOTEHEAD_SLASH_VERTICAL_WHOLE: u32 = 0xE101;
-    pub const NOTEHEAD_SLASH_VERTICAL_HALF: u32 = 0xE102;
-    pub const NOTEHEAD_SLASH_VERTICAL_BLACK: u32 = 0xE103;
+    pub const NOTEHEAD_SLASH_VERTICAL_DOUBLE_WHOLE: u32 = 0xE10A;
+    pub const NOTEHEAD_SLASH_VERTICAL_WHOLE: u32 = 0xE102;
+    pub const NOTEHEAD_SLASH_VERTICAL_HALF: u32 = 0xE103;
+    pub const NOTEHEAD_SLASH_VERTICAL_BLACK: u32 = 0xE100;
 
     // ═══════════════════════════════════════
     // Notehead anchor points (from Bravura glyphsWithAnchors)
@@ -173,9 +173,13 @@ pub mod smufl {
                 up_se: (1.14, -0.464),
                 down_nw: (0.0, -0.464),
             },
-            NOTEHEAD_SLASH_VERTICAL_BLACK | NOTEHEAD_SLASH_VERTICAL_HALF => StemAnchors {
+            NOTEHEAD_SLASH_VERTICAL_BLACK => StemAnchors {
                 up_se: (1.46, -0.656),
                 down_nw: (0.0, 0.664),
+            },
+            NOTEHEAD_SLASH_VERTICAL_HALF => StemAnchors {
+                up_se: (3.12, -1.0),
+                down_nw: (0.0, 1.0),
             },
             _ => STEM_ANCHORS_DEFAULT,
         }
@@ -1718,6 +1722,10 @@ pub mod smufl {
             NOTEHEAD_HALF => (0.0, -0.5, 1.18, 1.0),
             NOTEHEAD_WHOLE => (0.0, -0.5, 1.66, 1.0),
             NOTEHEAD_DOUBLE_WHOLE => (-0.18, -0.5, 2.02, 1.0),
+            NOTEHEAD_SLASH_VERTICAL_BLACK => (0.0, -0.996, 1.46, 2.0),
+            NOTEHEAD_SLASH_VERTICAL_HALF => (0.0, -1.0, 3.12, 2.0),
+            NOTEHEAD_SLASH_VERTICAL_WHOLE => (0.0, -1.0, 3.92, 2.0),
+            NOTEHEAD_SLASH_VERTICAL_DOUBLE_WHOLE => (0.0, -1.0, 4.644, 2.0),
 
             // Rests
             REST_WHOLE => (0.0, -0.036, 1.128, 0.576),
