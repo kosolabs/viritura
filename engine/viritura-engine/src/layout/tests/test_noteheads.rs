@@ -79,9 +79,9 @@ fn slash_noteheads_use_smufl_glyphs_for_each_duration() {
         [
             0xE102, // noteheadSlashWhiteWhole
             0xE103, // noteheadSlashWhiteHalf
-            0xE100, // noteheadSlashVerticalEnds
-            0xE100, // noteheadSlashVerticalEnds
-            0xE100, // noteheadSlashVerticalEnds
+            0xE101, // noteheadSlashHorizontalEnds
+            0xE101, // noteheadSlashHorizontalEnds
+            0xE101, // noteheadSlashHorizontalEnds
             0xE10A, // noteheadSlashWhiteDoubleWhole
         ]
     );
@@ -101,7 +101,7 @@ fn slash_notehead_geometry_matches_bravura_metadata() {
     };
 
     for (codepoint, name) in [
-        (0xE100, "noteheadSlashVerticalEnds"),
+        (0xE101, "noteheadSlashHorizontalEnds"),
         (0xE102, "noteheadSlashWhiteWhole"),
         (0xE103, "noteheadSlashWhiteHalf"),
         (0xE10A, "noteheadSlashWhiteDoubleWhole"),
